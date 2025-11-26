@@ -2,6 +2,7 @@ package modelo;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class PersonajeDAO {
@@ -42,6 +43,49 @@ public class PersonajeDAO {
             } else {
                  e.printStackTrace();
             }
+            return false;
+            
+        } finally {
+            try {
+                if (ps != null) ps.close();
+            } catch (SQLException e) {
+                System.err.println("Error al cerrar recursos: " + e.getMessage());
+            }
+        }
+    }    
+    
+    public boolean editarPersonaje(Personaje p) {
+        
+        String sql = "UPDATE personajes SET nombre = ?, tipo = ? WHERE id_personaje = ?";
+        
+        Connection cn = Conexion.getInstance().getConexion();
+        PreparedStatement ps = null;
+        
+        if (cn == null) {
+            System.err.println("❌ Fallo: La conexión a la base de datos no está disponible.");
+            return false;
+        }
+        
+        try {
+            ps = cn.prepareStatement(sql);
+            
+            ps.setString(1, p.getNombre());
+            ps.setString(2, p.getTipo());
+            ps.setInt(3, p.getId());
+            
+            int filas = ps.executeUpdate();
+            
+            if (filas > 0) {
+                System.out.println("✅ Personaje con ID " + p.getId() + " actualizado: nuevo nombre '" + p.getNombre() + "', tipo '" + p.getTipo() + "'.");
+                return true;
+            } else {
+                System.err.println("⚠️ No se encontró personaje con ID " + p.getId() + ".");
+                return false;
+            }
+            
+        } catch (SQLException e) {
+            System.err.println("❌ Error al actualizar nombre y tipo del personaje.");
+            e.printStackTrace();
             return false;
             
         } finally {
