@@ -4,7 +4,7 @@ public abstract class Personaje {
     
     private int id; // ID de la base de datos
     private String nombre; 
-    private final String tipo;
+    private String tipo;
     private int salud;
     private int mana;
     private int ataque;
@@ -36,6 +36,10 @@ public abstract class Personaje {
 
     public void setNombre(String nombre) {
         this.nombre = nombre;
+    }
+    
+    public void setTipo(String tipo) {
+        this.tipo = tipo;
     }
     
     public void setSalud(int salud) {

@@ -7,9 +7,10 @@ import java.sql.SQLException;
 
 public class PersonajeDAO {
     
+    
     public boolean ingresarPersonaje(Personaje p) {
         
-        String sql = "INSERT INTO personajes (nombre, tipo, caracteristicas, salud, mana, ataque, defensa, agilidad) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO personajes (nombre, tipo, salud, mana, ataque, defensa, agilidad) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
         
         Connection cn = Conexion.getInstance().getConexion(); 
         PreparedStatement ps = null; 
@@ -25,11 +26,11 @@ public class PersonajeDAO {
             ps.setString(1, p.getNombre());
             ps.setString(2, p.getTipo());
             
-            ps.setInt(4, p.getSalud());
-            ps.setInt(5, p.getMana());
-            ps.setInt(6, p.getAtaque());
-            ps.setInt(7, p.getDefensa());
-            ps.setInt(8, p.getAgilidad());
+            ps.setInt(3, p.getSalud());
+            ps.setInt(4, p.getMana());
+            ps.setInt(5, p.getAtaque());
+            ps.setInt(6, p.getDefensa());
+            ps.setInt(7, p.getAgilidad());
             
             ps.executeUpdate();
             
@@ -55,39 +56,51 @@ public class PersonajeDAO {
     }    
     
     public boolean editarPersonaje(Personaje p) {
-        
-        String sql = "UPDATE personajes SET nombre = ?, tipo = ? WHERE id_personaje = ?";
-        
+
+        // Crear un personaje nuevo del tipo elegido, pero con el mismo nombre
+        Personaje nuevo = FabricaPersonajes.crearPorTipo(p.getTipo(), p.getNombre());
+
+        String sql = "UPDATE personajes SET nombre = ?, tipo = ?, salud = ?, mana = ?, ataque = ?, defensa = ?, agilidad = ? WHERE id_personaje = ?";
+
         Connection cn = Conexion.getInstance().getConexion();
         PreparedStatement ps = null;
-        
+
         if (cn == null) {
             System.err.println("❌ Fallo: La conexión a la base de datos no está disponible.");
             return false;
         }
-        
+
         try {
             ps = cn.prepareStatement(sql);
-            
-            ps.setString(1, p.getNombre());
-            ps.setString(2, p.getTipo());
-            ps.setInt(3, p.getId());
-            
+
+            // Nuevo nombre y tipo
+            ps.setString(1, nuevo.getNombre());
+            ps.setString(2, nuevo.getTipo());
+
+            // Nuevas estadísticas del tipo seleccionado
+            ps.setInt(3, nuevo.getSalud());
+            ps.setInt(4, nuevo.getMana());
+            ps.setInt(5, nuevo.getAtaque());
+            ps.setInt(6, nuevo.getDefensa());
+            ps.setInt(7, nuevo.getAgilidad());
+
+            ps.setInt(8, p.getId());
+
             int filas = ps.executeUpdate();
-            
+
             if (filas > 0) {
-                System.out.println("✅ Personaje con ID " + p.getId() + " actualizado: nuevo nombre '" + p.getNombre() + "', tipo '" + p.getTipo() + "'.");
+                System.out.println("✅ Personaje actualizado a tipo '" + nuevo.getTipo() + "'");
                 return true;
             } else {
-                System.err.println("⚠️ No se encontró personaje con ID " + p.getId() + ".");
+                System.err.println("⚠️ No se encontró personaje con ID " + p.getId());
                 return false;
             }
-            
+
         } catch (SQLException e) {
-            System.err.println("❌ Error al actualizar nombre y tipo del personaje.");
+            System.err.println("❌ Error al actualizar personaje.");
             e.printStackTrace();
             return false;
-            
+
         } finally {
             try {
                 if (ps != null) ps.close();
@@ -96,4 +109,6 @@ public class PersonajeDAO {
             }
         }
     }
+
+
 }

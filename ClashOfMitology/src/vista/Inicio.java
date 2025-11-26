@@ -68,6 +68,7 @@ public class Inicio extends javax.swing.JFrame {
         miSalir = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setTitle("Clash Of Mythology");
 
         javax.swing.GroupLayout escritorioLayout = new javax.swing.GroupLayout(escritorio);
         escritorio.setLayout(escritorioLayout);
@@ -91,6 +92,11 @@ public class Inicio extends javax.swing.JFrame {
         mOpciones.add(miCrearPersonaje);
 
         miEditarPersonaje.setText("Editar Personaje");
+        miEditarPersonaje.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                miEditarPersonajeActionPerformed(evt);
+            }
+        });
         mOpciones.add(miEditarPersonaje);
 
         miBuscarPersonaje.setText("Buscar Personaje");
@@ -158,6 +164,21 @@ public class Inicio extends javax.swing.JFrame {
         // TODO add your handling code here:
        System.exit(0);
     }//GEN-LAST:event_miSalirActionPerformed
+
+    private void miEditarPersonajeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_miEditarPersonajeActionPerformed
+        // TODO add your handling code here:
+        EditarPersonaje editarPersonaje = new EditarPersonaje();
+        escritorio.add(editarPersonaje);
+        editarPersonaje.setVisible(true);
+        
+        try {
+            editarPersonaje.setMaximum(true);
+            editarPersonaje.setSelected(true);
+            editarPersonaje.setLocation( (escritorio.getWidth() - editarPersonaje.getWidth()) / 2, 
+                                    (escritorio.getHeight() - editarPersonaje.getHeight()) / 2 );
+        } catch (java.beans.PropertyVetoException e) {
+        }
+    }//GEN-LAST:event_miEditarPersonajeActionPerformed
 
     /**
      * @param args the command line arguments

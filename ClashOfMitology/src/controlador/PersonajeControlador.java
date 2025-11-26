@@ -9,6 +9,7 @@ import modelo.Sacerdote;
 import modelo.PersonajeDAO;
 
 public class PersonajeControlador {
+    
     private final PersonajeDAO dao;
 
     public PersonajeControlador() {
@@ -51,4 +52,6 @@ public class PersonajeControlador {
         
         return false;
     }
+    
+    
 }

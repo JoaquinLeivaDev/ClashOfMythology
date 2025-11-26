@@ -5,6 +5,8 @@
  */
 package vista;
 import controlador.PersonajeControlador;
+import modelo.FabricaPersonajes;
+import modelo.Personaje;
 
 /**
  *
@@ -13,6 +15,7 @@ import controlador.PersonajeControlador;
 public class CrearPersonaje extends javax.swing.JInternalFrame {
 
     private final PersonajeControlador controlador = new PersonajeControlador();
+    private String tipo;
     /**
      * Creates new form CrearPersonaje
      */
@@ -133,6 +136,7 @@ public class CrearPersonaje extends javax.swing.JInternalFrame {
     private void cbTipoPersonajeItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_cbTipoPersonajeItemStateChanged
         if (evt.getStateChange() == java.awt.event.ItemEvent.SELECTED) {
         mostrarImagenSeleccionada();
+        mostrarEstadisticas();
         }
     }//GEN-LAST:event_cbTipoPersonajeItemStateChanged
 
@@ -166,7 +170,34 @@ public class CrearPersonaje extends javax.swing.JInternalFrame {
     }//GEN-LAST:event_cbTipoPersonajeActionPerformed
 
 
-    private void mostrarImagenSeleccionada(){
+    private void mostrarEstadisticas() {
+    String tipo = (String) cbTipoPersonaje.getSelectedItem();
+    if (tipo == null) return;
+    
+    Personaje personaje = FabricaPersonajes.crearPorTipo(tipo, "TEMP");
+
+    try {
+
+        // Lista de características
+        String[] stats = {
+            "Salud: " + personaje.getSalud(),
+            "Maná: " + personaje.getMana(),
+            "Ataque: " + personaje.getAtaque(),
+            "Defensa: " + personaje.getDefensa(),
+            "Agilidad: " + personaje.getAgilidad()
+        };
+
+        listCaracteristicas.setListData(stats);
+
+    } catch (Exception e) {
+        listCaracteristicas.setListData(new String[]{"Error al cargar stats."});
+        e.printStackTrace();
+    }
+}
+
+
+    
+    public void mostrarImagenSeleccionada(){
         String tipo = (String) cbTipoPersonaje.getSelectedItem();
         String rutaImagen = "";
         
