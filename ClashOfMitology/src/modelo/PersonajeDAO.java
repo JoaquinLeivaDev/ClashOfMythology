@@ -2,19 +2,18 @@ package modelo;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class PersonajeDAO {
     
+    Connection cn = Conexion.getInstance().getConexion(); 
+    PreparedStatement ps = null; 
+    
     
     public boolean ingresarPersonaje(Personaje p) {
         
-        String sql = "INSERT INTO personajes (nombre, tipo, salud, mana, ataque, defensa, agilidad) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
-        
-        Connection cn = Conexion.getInstance().getConexion(); 
-        PreparedStatement ps = null; 
-        
+        String sql = "INSERT INTO personajes (nombre, tipo, salud, mana, ataque, defensa, agilidad) VALUES (?, ?, ?, ?, ?, ?, ?)";//aqui le tuve que quitar un '?'
+               
         if (cn == null) {
             System.err.println("❌ Fallo: La conexión a la base de datos no está disponible.");
             return false;
@@ -60,10 +59,7 @@ public class PersonajeDAO {
         // Crear un personaje nuevo del tipo elegido, pero con el mismo nombre
         Personaje nuevo = FabricaPersonajes.crearPorTipo(p.getTipo(), p.getNombre());
 
-        String sql = "UPDATE personajes SET nombre = ?, tipo = ?, salud = ?, mana = ?, ataque = ?, defensa = ?, agilidad = ? WHERE id_personaje = ?";
-
-        Connection cn = Conexion.getInstance().getConexion();
-        PreparedStatement ps = null;
+        String sql = "UPDATE personajes SET nombre = ?, tipo = ?, salud = ?, mana = ?, ataque = ?, defensa = ?, agilidad = ? WHERE id = ?";
 
         if (cn == null) {
             System.err.println("❌ Fallo: La conexión a la base de datos no está disponible.");
@@ -109,6 +105,4 @@ public class PersonajeDAO {
             }
         }
     }
-
-
 }

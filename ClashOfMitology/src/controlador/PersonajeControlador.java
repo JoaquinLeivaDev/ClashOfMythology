@@ -53,5 +53,13 @@ public class PersonajeControlador {
         return false;
     }
     
+    public boolean editarPersonaje(Personaje p) {
+        
+        if (p == null || p.getId() <= 0) {
+            System.err.println("Error de Control: El objeto Personaje o su ID son inválidos para la edición.");
+            return false;
+        }
+        return dao.editarPersonaje(p);
+    } 
     
 }
