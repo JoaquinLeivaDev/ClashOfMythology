@@ -112,79 +112,202 @@ public class PersonajeDAO {
         }
     }
     
-public List<Personaje> buscarPersonaje(String id, String tipo, String nombre) {
+    public List<Personaje> buscarPersonaje(String id, String tipo, String nombre) {
 
-    String sqlBase = "SELECT id, nombre, tipo, salud, mana, ataque, defensa, agilidad FROM personajes WHERE 1 = 1";
+        String sqlBase = "SELECT id, nombre, tipo, salud, mana, ataque, defensa, agilidad FROM personajes WHERE 1 = 1";
 
-    List<Personaje> resultados = new ArrayList<>();
-    PreparedStatement psBusqueda = null;
-    ResultSet rs = null;
-
-    if (id != null && !id.trim().isEmpty()) {
-        sqlBase += " AND id = ?";
-    }
-    if (tipo != null && !tipo.trim().isEmpty() && !tipo.equalsIgnoreCase("TODOS")) {
-        sqlBase += " AND tipo = ?";
-    }
-    if (nombre != null && !nombre.trim().isEmpty()) {
-        sqlBase += " AND nombre LIKE ?";
-    }
-
-    System.out.println("DEBUG SQL: " + sqlBase);
-
-    Connection conn = Conexion.getInstance().getConexion(); 
-    if (conn == null) {
-        System.err.println("❌ Fallo: La conexión está cerrada.");
-        return resultados;
-    }
-
-    try {
-        psBusqueda = conn.prepareStatement(sqlBase);
-        int paramIndex = 1;
+        List<Personaje> resultados = new ArrayList<>();
+        PreparedStatement psBusqueda = null;
+        ResultSet rs = null;
 
         if (id != null && !id.trim().isEmpty()) {
-            psBusqueda.setInt(paramIndex++, Integer.parseInt(id.trim()));
+            sqlBase += " AND id = ?";
         }
         if (tipo != null && !tipo.trim().isEmpty() && !tipo.equalsIgnoreCase("TODOS")) {
-            psBusqueda.setString(paramIndex++, tipo);
+            sqlBase += " AND tipo = ?";
         }
         if (nombre != null && !nombre.trim().isEmpty()) {
-            psBusqueda.setString(paramIndex++, "%" + nombre.trim() + "%");
+            sqlBase += " AND nombre LIKE ?";
         }
 
-        rs = psBusqueda.executeQuery();
+        System.out.println("DEBUG SQL: " + sqlBase);
 
-        while (rs.next()) {
-            String tipoPersonaje = rs.getString("tipo");
-            Personaje p = FabricaPersonajes.crearPorTipo(tipoPersonaje);
-
-            p.setId(rs.getInt("id"));
-            p.setNombre(rs.getString("nombre"));
-            p.setTipo(tipoPersonaje);
-            p.setSalud(rs.getInt("salud"));
-            p.setMana(rs.getInt("mana"));
-            p.setAtaque(rs.getInt("ataque"));
-            p.setDefensa(rs.getInt("defensa"));
-            p.setAgilidad(rs.getInt("agilidad"));
-
-            resultados.add(p);
+        Connection conn = Conexion.getInstance().getConexion(); 
+        if (conn == null) {
+            System.err.println("❌ Fallo: La conexión está cerrada.");
+            return resultados;
         }
 
-        System.out.println("✅ Búsqueda completada. Encontrados " + resultados.size() + " personajes.");
-
-    } catch (SQLException e) {
-        System.err.println("❌ Error al ejecutar la búsqueda.");
-        e.printStackTrace();
-
-    } finally {
         try {
-            if (rs != null) rs.close();
-            if (psBusqueda != null) psBusqueda.close();
+            psBusqueda = conn.prepareStatement(sqlBase);
+            int paramIndex = 1;
+
+            if (id != null && !id.trim().isEmpty()) {
+                psBusqueda.setInt(paramIndex++, Integer.parseInt(id.trim()));
+            }
+            if (tipo != null && !tipo.trim().isEmpty() && !tipo.equalsIgnoreCase("TODOS")) {
+                psBusqueda.setString(paramIndex++, tipo);
+            }
+            if (nombre != null && !nombre.trim().isEmpty()) {
+                psBusqueda.setString(paramIndex++, "%" + nombre.trim() + "%");
+            }
+
+            rs = psBusqueda.executeQuery();
+
+            while (rs.next()) {
+                String tipoPersonaje = rs.getString("tipo");
+                Personaje p = FabricaPersonajes.crearPorTipo(tipoPersonaje);
+
+                p.setId(rs.getInt("id"));
+                p.setNombre(rs.getString("nombre"));
+                p.setTipo(tipoPersonaje);
+                p.setSalud(rs.getInt("salud"));
+                p.setMana(rs.getInt("mana"));
+                p.setAtaque(rs.getInt("ataque"));
+                p.setDefensa(rs.getInt("defensa"));
+                p.setAgilidad(rs.getInt("agilidad"));
+
+                resultados.add(p);
+            }
+
+            System.out.println("✅ Búsqueda completada. Encontrados " + resultados.size() + " personajes.");
+
         } catch (SQLException e) {
-            System.err.println("Error al cerrar recursos: " + e.getMessage());
+            System.err.println("❌ Error al ejecutar la búsqueda.");
+            e.printStackTrace();
+
+        } finally {
+            try {
+                if (rs != null) rs.close();
+                if (psBusqueda != null) psBusqueda.close();
+            } catch (SQLException e) {
+                System.err.println("Error al cerrar recursos: " + e.getMessage());
+            }
+        }
+
+        return resultados;
+    }
+    
+    public boolean eliminarPersonajePorID(int id) {
+        String sql = "DELETE FROM personajes WHERE id = ?";
+
+        if (cn == null) {
+            System.err.println("❌ Fallo: No hay conexión disponible a la base de datos.");
+            return false;
+        }
+
+        PreparedStatement ps = null;
+
+        try {
+            ps = cn.prepareStatement(sql);
+            ps.setInt(1, id);
+
+            int filasAfectadas = ps.executeUpdate();
+
+            if (filasAfectadas > 0) {
+                System.out.println("✅ Personaje con ID " + id + " eliminado con éxito.");
+                return true;
+            } else {
+                System.out.println("⚠ No existe un personaje con ID " + id + ".");
+                return false;
+            }
+
+        } catch (SQLException e) {
+            System.err.println("❌ Error al intentar eliminar el personaje en la BD.");
+            e.printStackTrace();
+            return false;
+
+        } finally {
+            try {
+                if (ps != null) ps.close();
+            } catch (SQLException e) {
+                System.err.println("Error al cerrar PreparedStatement: " + e.getMessage());
+            }
         }
     }
+    public boolean eliminarPersonajePorNombre(String nombre) {
+        String sql = "DELETE FROM personajes WHERE nombre = ?";
 
-    return resultados;
-}
+        if (cn == null) {
+            System.err.println("❌ Fallo: No hay conexión disponible a la base de datos.");
+            return false;
+        }
+
+        PreparedStatement ps = null;
+
+        try {
+            ps = cn.prepareStatement(sql);
+            ps.setString(1, nombre);
+
+            int filasAfectadas = ps.executeUpdate();
+
+            if (filasAfectadas > 0) {
+                System.out.println("✅ Personaje con Nombre: " + nombre + " eliminado con éxito.");
+                return true;
+            } else {
+                System.out.println("⚠ No existe un personaje con Nombre: " + nombre + ".");
+                return false;
+            }
+
+        } catch (SQLException e) {
+            System.err.println("❌ Error al intentar eliminar el personaje en la BD.");
+            e.printStackTrace();
+            return false;
+
+        } finally {
+            try {
+                if (ps != null) ps.close();
+            } catch (SQLException e) {
+                System.err.println("Error al cerrar PreparedStatement: " + e.getMessage());
+            }
+        }
+    }
+    public boolean eliminarPersonajePorTipo(String tipo) {
+        String sql = "DELETE FROM personajes WHERE tipo = ?";
+
+        if (cn == null) {
+            System.err.println("❌ Fallo: No hay conexión disponible a la base de datos.");
+            return false;
+        }
+
+        PreparedStatement ps = null;
+
+        try {
+            ps = cn.prepareStatement(sql);
+            ps.setString(1, tipo);
+
+            int filasAfectadas = ps.executeUpdate();
+
+            if (filasAfectadas > 0) {
+                System.out.println("✅ Personaje(s) con Tipo: " + tipo + " eliminado(s) con éxito.");
+                return true;
+            } else {
+                System.out.println("⚠ No existe un personaje con Tipo: " + tipo + ".");
+                return false;
+            }
+
+        } catch (SQLException e) {
+            System.err.println("❌ Error al intentar eliminar el personaje en la BD.");
+            e.printStackTrace();
+            return false;
+
+        } finally {
+            try {
+                if (ps != null) ps.close();
+            } catch (SQLException e) {
+                System.err.println("Error al cerrar PreparedStatement: " + e.getMessage());
+            }
+        }
+    }
+    
+    public void eliminarTodoPersonajes()throws SQLException{
+        String sql = "DELETE FROM personajes";
+
+        PreparedStatement ps = cn.prepareStatement(sql);
+        ps.executeUpdate();
+        ps.close();
+    
+
+        
+    }
 }
