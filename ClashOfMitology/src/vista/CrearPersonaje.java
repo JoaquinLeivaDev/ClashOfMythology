@@ -5,7 +5,7 @@ import modelo.Personaje;
 
 /**
  *
- * @author Kinidread
+ * @author Joaquin & Cesar
  */
 public class CrearPersonaje extends javax.swing.JInternalFrame {
 
@@ -136,14 +136,14 @@ public class CrearPersonaje extends javax.swing.JInternalFrame {
     }//GEN-LAST:event_cbTipoPersonajeItemStateChanged
 
     private void btnCancelarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCancelarActionPerformed
-        // TODO add your handling code here:        
+   
         this.dispose();
     }//GEN-LAST:event_btnCancelarActionPerformed
 
     private void btnIngresarPersonajeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnIngresarPersonajeActionPerformed
-        // TODO add your handling code here:
+
         String nombre = txtNombre.getText().trim();
-    String tipo = (String) cbTipoPersonaje.getSelectedItem(); 
+        String tipo = (String) cbTipoPersonaje.getSelectedItem(); 
 
     if (nombre.isEmpty() || tipo == null || tipo.isEmpty()) {
         javax.swing.JOptionPane.showMessageDialog(this, "Debe completar el nombre y seleccionar el tipo.", "Advertencia", javax.swing.JOptionPane.WARNING_MESSAGE);
@@ -153,7 +153,7 @@ public class CrearPersonaje extends javax.swing.JInternalFrame {
         javax.swing.JOptionPane.showMessageDialog(this, "¡Personaje " + nombre + " creado con éxito!", "Éxito", javax.swing.JOptionPane.INFORMATION_MESSAGE);
         this.dispose();
     } else {
-        javax.swing.JOptionPane.showMessageDialog(this, "Error al guardar el personaje. Revise los logs.", "Fallo", javax.swing.JOptionPane.ERROR_MESSAGE);
+        javax.swing.JOptionPane.showMessageDialog(this, "Error al guardar el personaje", "Fallo", javax.swing.JOptionPane.ERROR_MESSAGE);
     }
     }//GEN-LAST:event_btnIngresarPersonajeActionPerformed
 

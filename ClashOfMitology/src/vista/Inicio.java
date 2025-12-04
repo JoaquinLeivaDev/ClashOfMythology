@@ -2,7 +2,7 @@ package vista;
 
 /**
  *
- * @author Kinidread
+ * @author Joaquin & Cesar
  */
 public class Inicio extends javax.swing.JFrame {
  
@@ -21,7 +21,7 @@ public class Inicio extends javax.swing.JFrame {
         imagenFondo = icono.getImage();
         
     } catch (Exception e) {
-        System.err.println("❌ Error al cargar la imagen de fondo: " + e.getMessage());
+        System.err.println("Error al cargar la imagen de fondo: " + e.getMessage());
         imagenFondo = null;
     }
 }
@@ -46,7 +46,6 @@ public class Inicio extends javax.swing.JFrame {
         miCrearPersonaje = new javax.swing.JMenuItem();
         miEditarPersonaje = new javax.swing.JMenuItem();
         miBuscarPersonaje = new javax.swing.JMenuItem();
-        miEliminarPersonaje = new javax.swing.JMenuItem();
         mSalir = new javax.swing.JMenu();
         miSalir = new javax.swing.JMenuItem();
 
@@ -82,16 +81,13 @@ public class Inicio extends javax.swing.JFrame {
         });
         mOpciones.add(miEditarPersonaje);
 
-        miBuscarPersonaje.setText("Buscar Personaje");
+        miBuscarPersonaje.setText("Buscar y Eliminar Personaje");
         miBuscarPersonaje.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 miBuscarPersonajeActionPerformed(evt);
             }
         });
         mOpciones.add(miBuscarPersonaje);
-
-        miEliminarPersonaje.setText("Eliminar Personaje");
-        mOpciones.add(miEliminarPersonaje);
 
         jMenuBar.add(mOpciones);
 
@@ -129,26 +125,18 @@ public class Inicio extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void miCrearPersonajeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_miCrearPersonajeActionPerformed
+        
         CrearPersonaje crearPersonaje = new CrearPersonaje();
         escritorio.add(crearPersonaje);
         crearPersonaje.setVisible(true);
-        
-        try {
-        crearPersonaje.setMaximum(true);
-        crearPersonaje.setSelected(true);
-        crearPersonaje.setLocation( (escritorio.getWidth() - crearPersonaje.getWidth()) / 2, 
-                                    (escritorio.getHeight() - crearPersonaje.getHeight()) / 2 );
-    } catch (java.beans.PropertyVetoException e) {
-    }
     }//GEN-LAST:event_miCrearPersonajeActionPerformed
 
     private void mSalirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mSalirActionPerformed
-        // TODO add your handling code here:
     }//GEN-LAST:event_mSalirActionPerformed
 
     private void miSalirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_miSalirActionPerformed
-        // TODO add your handling code here:
-       System.exit(0);
+       
+        System.exit(0);
     }//GEN-LAST:event_miSalirActionPerformed
 
     private void miEditarPersonajeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_miEditarPersonajeActionPerformed
@@ -208,7 +196,6 @@ public class Inicio extends javax.swing.JFrame {
     private javax.swing.JMenuItem miBuscarPersonaje;
     private javax.swing.JMenuItem miCrearPersonaje;
     private javax.swing.JMenuItem miEditarPersonaje;
-    private javax.swing.JMenuItem miEliminarPersonaje;
     private javax.swing.JMenuItem miSalir;
     // End of variables declaration//GEN-END:variables
 }

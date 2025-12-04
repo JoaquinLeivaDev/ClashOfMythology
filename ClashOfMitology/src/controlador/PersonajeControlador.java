@@ -21,6 +21,14 @@ public class PersonajeControlador {
         return dao.buscarPersonaje(id, tipo, nombre);
     }
     
+    public List<Personaje> listarTodosLosPersonajes() {
+        return dao.listarTodos(); 
+    }
+    
+    public Personaje buscarPersonajePorId(int id) {
+    return dao.buscarPorId(id);
+}
+    
     public boolean guardarPersonaje(String nombre, String tipo) {
         
         if (nombre == null || nombre.trim().isEmpty() || tipo == null || tipo.trim().isEmpty()) {
@@ -66,5 +74,33 @@ public class PersonajeControlador {
         }
         return dao.editarPersonaje(p);
     } 
+    
+    public boolean eliminarPersonajePorId(int id) {
+    if (id <= 0) {
+        System.err.println("Error: ID de personaje inválido para la eliminación.");
+        return false;
+    }
+    return dao.eliminarPersonajePorID(id);
+}
+
+public boolean eliminarPersonajePorNombre(String nombre) {
+    if (nombre == null || nombre.trim().isEmpty()) {
+        System.err.println("Error: Nombre no puede estar vacío para la eliminación.");
+        return false;
+    }
+    return dao.eliminarPersonajePorNombre(nombre);
+}
+
+public boolean eliminarPersonajePorTipo(String tipo) {
+    if (tipo == null || tipo.trim().isEmpty()) {
+        System.err.println("Error: Tipo no puede estar vacío para la eliminación.");
+        return false;
+    }
+    return dao.eliminarPersonajePorTipo(tipo);
+}
+
+public void eliminarTodosLosPersonajes() throws java.sql.SQLException {
+    dao.eliminarTodoPersonajes();
+}
     
 }

@@ -27,16 +27,11 @@
             </MenuItem>
             <MenuItem class="javax.swing.JMenuItem" name="miBuscarPersonaje">
               <Properties>
-                <Property name="text" type="java.lang.String" value="Buscar Personaje"/>
+                <Property name="text" type="java.lang.String" value="Buscar y Eliminar Personaje"/>
               </Properties>
               <Events>
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="miBuscarPersonajeActionPerformed"/>
               </Events>
-            </MenuItem>
-            <MenuItem class="javax.swing.JMenuItem" name="miEliminarPersonaje">
-              <Properties>
-                <Property name="text" type="java.lang.String" value="Eliminar Personaje"/>
-              </Properties>
             </MenuItem>
           </SubComponents>
         </Menu>

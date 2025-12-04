@@ -7,21 +7,64 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
-import modelo.Personaje;
-import modelo.Conexion;
-
 public class PersonajeDAO {
     
     Connection cn = Conexion.getInstance().getConexion(); 
-    PreparedStatement ps = null; 
+    PreparedStatement ps = null;
     
+    public List<Personaje> listarTodos() {
+    return buscarPersonaje(null, null, null); 
+}
+    public Personaje buscarPorId(int id) {
+    String sql = "SELECT id, nombre, tipo, salud, mana, ataque, defensa, agilidad FROM personajes WHERE id = ?";
+    PreparedStatement psBusqueda = null;
+    ResultSet rs = null;
+    Personaje p = null;
+
+    if (cn == null) {
+        System.err.println("Fallo: La conexión a la base de datos no está disponible.");
+        return null;
+    }
+
+    try {
+        psBusqueda = cn.prepareStatement(sql);
+        psBusqueda.setInt(1, id);
+        rs = psBusqueda.executeQuery();
+
+        if (rs.next()) {
+            String tipoPersonaje = rs.getString("tipo");
+            p = FabricaPersonajes.crearPorTipo(tipoPersonaje); 
+            
+            p.setId(rs.getInt("id"));
+            p.setNombre(rs.getString("nombre"));
+            p.setTipo(tipoPersonaje);
+            p.setSalud(rs.getInt("salud"));
+            p.setMana(rs.getInt("mana"));
+            p.setAtaque(rs.getInt("ataque"));
+            p.setDefensa(rs.getInt("defensa"));
+            p.setAgilidad(rs.getInt("agilidad"));
+        }
+        
+    } catch (SQLException e) {
+        System.err.println("Error al buscar el personaje por ID.");
+        e.printStackTrace();
+    } finally {
+        try {
+            if (rs != null) rs.close();
+            if (psBusqueda != null) psBusqueda.close();
+        } catch (SQLException e) {
+            System.err.println("Error al cerrar recursos: " + e.getMessage());
+        }
+    }
+    return p;
+}
     
     public boolean ingresarPersonaje(Personaje p) {
         
         String sql = "INSERT INTO personajes (nombre, tipo, salud, mana, ataque, defensa, agilidad) VALUES (?, ?, ?, ?, ?, ?, ?)";//aqui le tuve que quitar un '?'
                
         if (cn == null) {
-            System.err.println("❌ Fallo: La conexión a la base de datos no está disponible.");
+            System.err.println("Fallo: La conexión a la base de datos no está disponible.");
             return false;
         }
 
@@ -39,11 +82,11 @@ public class PersonajeDAO {
             
             ps.executeUpdate();
             
-            System.out.println("✅ Personaje '" + p.getNombre() + "' de tipo " + p.getTipo() + " ingresado con éxito.");
+            System.out.println("Personaje '" + p.getNombre() + "' de tipo " + p.getTipo() + " ingresado con éxito.");
             return true;
             
         } catch (SQLException e) {
-            System.err.println("❌ Error al intentar ingresar el personaje en la BD.");
+            System.err.println("Error al intentar ingresar el personaje en la BD.");
             if (e.getErrorCode() == 1062) { 
                  System.err.println("El nombre de personaje '" + p.getNombre() + "' ya existe. Por favor, elige otro.");
             } else {
@@ -61,25 +104,22 @@ public class PersonajeDAO {
     }    
     
     public boolean editarPersonaje(Personaje p) {
-
-        // Crear un personaje nuevo del tipo elegido, pero con el mismo nombre
+        
         Personaje nuevo = FabricaPersonajes.crearPorTipo(p.getTipo(), p.getNombre());
 
         String sql = "UPDATE personajes SET nombre = ?, tipo = ?, salud = ?, mana = ?, ataque = ?, defensa = ?, agilidad = ? WHERE id = ?";
 
         if (cn == null) {
-            System.err.println("❌ Fallo: La conexión a la base de datos no está disponible.");
+            System.err.println("Fallo: La conexión a la base de datos no está disponible.");
             return false;
         }
 
         try {
             ps = cn.prepareStatement(sql);
-
-            // Nuevo nombre y tipo
+            
             ps.setString(1, nuevo.getNombre());
             ps.setString(2, nuevo.getTipo());
 
-            // Nuevas estadísticas del tipo seleccionado
             ps.setInt(3, nuevo.getSalud());
             ps.setInt(4, nuevo.getMana());
             ps.setInt(5, nuevo.getAtaque());
@@ -91,15 +131,15 @@ public class PersonajeDAO {
             int filas = ps.executeUpdate();
 
             if (filas > 0) {
-                System.out.println("✅ Personaje actualizado a tipo '" + nuevo.getTipo() + "'");
+                System.out.println("Personaje actualizado a tipo '" + nuevo.getTipo() + "'");
                 return true;
             } else {
-                System.err.println("⚠️ No se encontró personaje con ID " + p.getId());
+                System.err.println("No se encontró personaje con ID " + p.getId());
                 return false;
             }
 
         } catch (SQLException e) {
-            System.err.println("❌ Error al actualizar personaje.");
+            System.err.println("Error al actualizar personaje.");
             e.printStackTrace();
             return false;
 
@@ -123,7 +163,7 @@ public class PersonajeDAO {
         if (id != null && !id.trim().isEmpty()) {
             sqlBase += " AND id = ?";
         }
-        if (tipo != null && !tipo.trim().isEmpty() && !tipo.equalsIgnoreCase("TODOS")) {
+        if (tipo != null && !tipo.trim().isEmpty() && !tipo.equalsIgnoreCase("Todos")) {
             sqlBase += " AND tipo = ?";
         }
         if (nombre != null && !nombre.trim().isEmpty()) {
@@ -134,7 +174,7 @@ public class PersonajeDAO {
 
         Connection conn = Conexion.getInstance().getConexion(); 
         if (conn == null) {
-            System.err.println("❌ Fallo: La conexión está cerrada.");
+            System.err.println("Fallo: La conexión está cerrada.");
             return resultados;
         }
 
@@ -145,7 +185,7 @@ public class PersonajeDAO {
             if (id != null && !id.trim().isEmpty()) {
                 psBusqueda.setInt(paramIndex++, Integer.parseInt(id.trim()));
             }
-            if (tipo != null && !tipo.trim().isEmpty() && !tipo.equalsIgnoreCase("TODOS")) {
+            if (tipo != null && !tipo.trim().isEmpty() && !tipo.equalsIgnoreCase("Todos")) {
                 psBusqueda.setString(paramIndex++, tipo);
             }
             if (nombre != null && !nombre.trim().isEmpty()) {
@@ -170,10 +210,10 @@ public class PersonajeDAO {
                 resultados.add(p);
             }
 
-            System.out.println("✅ Búsqueda completada. Encontrados " + resultados.size() + " personajes.");
+            System.out.println("Búsqueda completada. Encontrados " + resultados.size() + " personajes.");
 
         } catch (SQLException e) {
-            System.err.println("❌ Error al ejecutar la búsqueda.");
+            System.err.println("Error al ejecutar la búsqueda.");
             e.printStackTrace();
 
         } finally {
@@ -192,7 +232,7 @@ public class PersonajeDAO {
         String sql = "DELETE FROM personajes WHERE id = ?";
 
         if (cn == null) {
-            System.err.println("❌ Fallo: No hay conexión disponible a la base de datos.");
+            System.err.println("Fallo: No hay conexión disponible a la base de datos.");
             return false;
         }
 
@@ -205,15 +245,15 @@ public class PersonajeDAO {
             int filasAfectadas = ps.executeUpdate();
 
             if (filasAfectadas > 0) {
-                System.out.println("✅ Personaje con ID " + id + " eliminado con éxito.");
+                System.out.println("Personaje con ID " + id + " eliminado con éxito.");
                 return true;
             } else {
-                System.out.println("⚠ No existe un personaje con ID " + id + ".");
+                System.out.println("No existe un personaje con ID " + id + ".");
                 return false;
             }
 
         } catch (SQLException e) {
-            System.err.println("❌ Error al intentar eliminar el personaje en la BD.");
+            System.err.println("Error al intentar eliminar el personaje en la BD.");
             e.printStackTrace();
             return false;
 
@@ -229,7 +269,7 @@ public class PersonajeDAO {
         String sql = "DELETE FROM personajes WHERE nombre = ?";
 
         if (cn == null) {
-            System.err.println("❌ Fallo: No hay conexión disponible a la base de datos.");
+            System.err.println("Fallo: No hay conexión disponible a la base de datos.");
             return false;
         }
 
@@ -242,15 +282,15 @@ public class PersonajeDAO {
             int filasAfectadas = ps.executeUpdate();
 
             if (filasAfectadas > 0) {
-                System.out.println("✅ Personaje con Nombre: " + nombre + " eliminado con éxito.");
+                System.out.println("Personaje con Nombre: " + nombre + " eliminado con éxito.");
                 return true;
             } else {
-                System.out.println("⚠ No existe un personaje con Nombre: " + nombre + ".");
+                System.out.println("No existe un personaje con Nombre: " + nombre + ".");
                 return false;
             }
 
         } catch (SQLException e) {
-            System.err.println("❌ Error al intentar eliminar el personaje en la BD.");
+            System.err.println("Error al intentar eliminar el personaje en la BD.");
             e.printStackTrace();
             return false;
 
@@ -266,7 +306,7 @@ public class PersonajeDAO {
         String sql = "DELETE FROM personajes WHERE tipo = ?";
 
         if (cn == null) {
-            System.err.println("❌ Fallo: No hay conexión disponible a la base de datos.");
+            System.err.println("Fallo: No hay conexión disponible a la base de datos.");
             return false;
         }
 
@@ -279,15 +319,15 @@ public class PersonajeDAO {
             int filasAfectadas = ps.executeUpdate();
 
             if (filasAfectadas > 0) {
-                System.out.println("✅ Personaje(s) con Tipo: " + tipo + " eliminado(s) con éxito.");
+                System.out.println("Personaje(s) con Tipo: " + tipo + " eliminado(s) con éxito.");
                 return true;
             } else {
-                System.out.println("⚠ No existe un personaje con Tipo: " + tipo + ".");
+                System.out.println("No existe un personaje con Tipo: " + tipo + ".");
                 return false;
             }
 
         } catch (SQLException e) {
-            System.err.println("❌ Error al intentar eliminar el personaje en la BD.");
+            System.err.println("Error al intentar eliminar el personaje en la BD.");
             e.printStackTrace();
             return false;
 
@@ -301,13 +341,11 @@ public class PersonajeDAO {
     }
     
     public void eliminarTodoPersonajes()throws SQLException{
+        
         String sql = "DELETE FROM personajes";
-
         PreparedStatement ps = cn.prepareStatement(sql);
         ps.executeUpdate();
         ps.close();
-    
-
         
     }
 }
