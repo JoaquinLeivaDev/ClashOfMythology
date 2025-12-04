@@ -112,92 +112,79 @@ public class PersonajeDAO {
         }
     }
     
-    public List<Personaje> buscarPersonaje(String id, String tipo, String nombre) {
-        
-        // El 'id' se busca por igualdad (si se proporciona)
-        // El 'nombre' y 'tipo' se buscan usando LIKE para búsquedas parciales (si se proporcionan)
-        // La condición '1 = 1' es un truco para poder añadir clausulas AND sin preocuparse si es la primera.
-        String sqlBase = "SELECT id, nombre, tipo, salud, mana, ataque, defensa, agilidad FROM personajes WHERE 1 = 1";
-        
-        List<Personaje> resultados = new ArrayList<>();
-        PreparedStatement psBusqueda = null;
-        ResultSet rs = null;
-        
-        // 1. Construir la consulta SQL dinámicamente
-        if (id != null && !id.trim().isEmpty()) {
-            sqlBase += " AND id = ?";
-        }
-        if (tipo != null && !tipo.trim().isEmpty() && !tipo.equalsIgnoreCase("TODOS")) {
-            sqlBase += " AND tipo = ?";
-        }
-        if (nombre != null && !nombre.trim().isEmpty()) {
-            sqlBase += " AND nombre LIKE ?";
-        }
-        
-        System.out.println("DEBUG SQL: " + sqlBase);
-        
-        try (Connection conn = Conexion.getInstance().getConexion()) { // Usamos la conexión de la instancia
-            
-            if (conn == null) {
-                System.err.println("❌ Fallo: La conexión a la base de datos no está disponible.");
-                return resultados;
-            }
-            
-            psBusqueda = conn.prepareStatement(sqlBase);
-            int paramIndex = 1;
-            
-            // 2. Establecer los parámetros en el PreparedStatement
-            if (id != null && !id.trim().isEmpty()) {
-                // Se asume que el ID es un entero, por eso usamos Integer.parseInt
-                psBusqueda.setInt(paramIndex++, Integer.parseInt(id.trim()));
-            }
-            if (tipo != null && !tipo.trim().isEmpty() && !tipo.equalsIgnoreCase("TODOS")) {
-                psBusqueda.setString(paramIndex++, tipo);
-            }
-            if (nombre != null && !nombre.trim().isEmpty()) {
-                // Para LIKE, añadimos comodines '%' al nombre para búsqueda parcial (ej: %Joa%)
-                psBusqueda.setString(paramIndex++, "%" + nombre.trim() + "%");
-            }
-            
-            // 3. Ejecutar la consulta
-            rs = psBusqueda.executeQuery();
-            
-            // 4. Procesar los resultados
-            while (rs.next()) {
-                // Asume que tienes un constructor vacío o setters
-                String tipoPersonaje = rs.getString("tipo");
-                Personaje p = FabricaPersonajes.crearPorTipo(tipoPersonaje);
-                
-                p.setId(rs.getInt("id"));
-                p.setNombre(rs.getString("nombre"));
-                p.setTipo(tipoPersonaje); // Ya lo obtuvimos
-                p.setSalud(rs.getInt("salud"));
-                p.setMana(rs.getInt("mana"));
-                p.setAtaque(rs.getInt("ataque"));
-                p.setDefensa(rs.getInt("defensa"));
-                p.setAgilidad(rs.getInt("agilidad"));
+public List<Personaje> buscarPersonaje(String id, String tipo, String nombre) {
 
-                resultados.add(p);
-            }
-            
-            System.out.println("✅ Búsqueda completada. Encontrados " + resultados.size() + " personajes.");
-            
-        } catch (SQLException e) {
-            System.err.println("❌ Error al ejecutar la búsqueda en la BD.");
-            e.printStackTrace();
-        } catch (NumberFormatException e) {
-            System.err.println("❌ Error: El ID debe ser un número entero.");
-        } finally {
-             // 5. Cerrar recursos (ResultSet y PreparedStatement)
-            try {
-                if (rs != null) rs.close();
-                if (psBusqueda != null) psBusqueda.close();
-                // Nota: La conexión 'conn' no se cierra aquí porque se obtiene de la instancia (Singleton)
-            } catch (SQLException e) {
-                System.err.println("Error al cerrar recursos: " + e.getMessage());
-            }
-        }
-        
+    String sqlBase = "SELECT id, nombre, tipo, salud, mana, ataque, defensa, agilidad FROM personajes WHERE 1 = 1";
+
+    List<Personaje> resultados = new ArrayList<>();
+    PreparedStatement psBusqueda = null;
+    ResultSet rs = null;
+
+    if (id != null && !id.trim().isEmpty()) {
+        sqlBase += " AND id = ?";
+    }
+    if (tipo != null && !tipo.trim().isEmpty() && !tipo.equalsIgnoreCase("TODOS")) {
+        sqlBase += " AND tipo = ?";
+    }
+    if (nombre != null && !nombre.trim().isEmpty()) {
+        sqlBase += " AND nombre LIKE ?";
+    }
+
+    System.out.println("DEBUG SQL: " + sqlBase);
+
+    Connection conn = Conexion.getInstance().getConexion(); 
+    if (conn == null) {
+        System.err.println("❌ Fallo: La conexión está cerrada.");
         return resultados;
     }
+
+    try {
+        psBusqueda = conn.prepareStatement(sqlBase);
+        int paramIndex = 1;
+
+        if (id != null && !id.trim().isEmpty()) {
+            psBusqueda.setInt(paramIndex++, Integer.parseInt(id.trim()));
+        }
+        if (tipo != null && !tipo.trim().isEmpty() && !tipo.equalsIgnoreCase("TODOS")) {
+            psBusqueda.setString(paramIndex++, tipo);
+        }
+        if (nombre != null && !nombre.trim().isEmpty()) {
+            psBusqueda.setString(paramIndex++, "%" + nombre.trim() + "%");
+        }
+
+        rs = psBusqueda.executeQuery();
+
+        while (rs.next()) {
+            String tipoPersonaje = rs.getString("tipo");
+            Personaje p = FabricaPersonajes.crearPorTipo(tipoPersonaje);
+
+            p.setId(rs.getInt("id"));
+            p.setNombre(rs.getString("nombre"));
+            p.setTipo(tipoPersonaje);
+            p.setSalud(rs.getInt("salud"));
+            p.setMana(rs.getInt("mana"));
+            p.setAtaque(rs.getInt("ataque"));
+            p.setDefensa(rs.getInt("defensa"));
+            p.setAgilidad(rs.getInt("agilidad"));
+
+            resultados.add(p);
+        }
+
+        System.out.println("✅ Búsqueda completada. Encontrados " + resultados.size() + " personajes.");
+
+    } catch (SQLException e) {
+        System.err.println("❌ Error al ejecutar la búsqueda.");
+        e.printStackTrace();
+
+    } finally {
+        try {
+            if (rs != null) rs.close();
+            if (psBusqueda != null) psBusqueda.close();
+        } catch (SQLException e) {
+            System.err.println("Error al cerrar recursos: " + e.getMessage());
+        }
+    }
+
+    return resultados;
+}
 }
