@@ -13,4 +13,16 @@ public class Asesino extends Personaje {
             70 // agilidad
         ); 
     }
+    
+    public Asesino() {
+        super(
+            null, // Nombre inicializado a null
+            "Asesino",
+            0,
+            0,
+            0,
+            0,
+            0
+        );
+    }
 }

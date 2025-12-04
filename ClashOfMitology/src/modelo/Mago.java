@@ -12,4 +12,16 @@ public class Mago extends Personaje {
             30// agilidad
         ); 
     }
+    
+    public Mago() {
+        super(
+            null, // Nombre inicializado a null
+            "Mago",
+            0,
+            0,
+            0,
+            0,
+            0
+        );
+    }
 }

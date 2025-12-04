@@ -5,17 +5,43 @@
  */
 package vista;
 
+import controlador.PersonajeControlador;
+import java.util.List;
+import javax.swing.DefaultListModel;
+import javax.swing.JOptionPane;
+import modelo.Personaje;
+
 /**
  *
  * @author Kinidread
  */
-public class BuscarPersonaje extends javax.swing.JFrame {
+public class BuscarPersonaje extends javax.swing.JInternalFrame {
 
+    private final PersonajeControlador controlador;
+    private final DefaultListModel<String> listaModelo;
     /**
      * Creates new form BuscarPersonaje
      */
     public BuscarPersonaje() {
+        controlador = new PersonajeControlador(); // Inicializar el controlador
+        listaModelo = new DefaultListModel<>();   // Inicializar el modelo de lista
         initComponents();
+        
+        // 2.1 Configuración manual de componentes después de initComponents()
+        listBuscarPersonajes.setModel(listaModelo); // Asignar el modelo a la JList
+        inicializarComponentes();
+        cargarTodosLosPersonajesInicialmente();
+    }
+    
+    private void inicializarComponentes() {
+        // Añadir "TODOS" al ComboBox para permitir búsquedas sin filtro de tipo
+        cbTipoPersonaje.addItem("TODOS"); 
+        
+        // El DefaultComboBoxModel de tu initComponents ya tiene los tipos de personajes.
+        // Solo reordenamos para que "TODOS" sea el primero.
+        String[] items = {"TODOS", "Guerrero", "Mago", "Arquero", "Sacerdote", "Asesino"};
+        cbTipoPersonaje.setModel(new javax.swing.DefaultComboBoxModel<>(items));
+        cbTipoPersonaje.setSelectedItem("TODOS"); // Seleccionar 'TODOS' por defecto
     }
 
     /**
@@ -38,7 +64,7 @@ public class BuscarPersonaje extends javax.swing.JFrame {
         btnCancelar = new javax.swing.JButton();
         cbTipoPersonaje = new javax.swing.JComboBox<>();
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
         jScrollPane1.setViewportView(listBuscarPersonajes);
 
@@ -49,8 +75,18 @@ public class BuscarPersonaje extends javax.swing.JFrame {
         lBuscarPorNombre.setText("Buscar por NOMBRE:");
 
         btnBuscar.setText("BUSCAR!");
+        btnBuscar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnBuscarActionPerformed(evt);
+            }
+        });
 
         btnCancelar.setText("Cancelar");
+        btnCancelar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnCancelarActionPerformed(evt);
+            }
+        });
 
         cbTipoPersonaje.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Guerrero", "Mago", "Arquero", "Sacerdote", "Asesino" }));
         cbTipoPersonaje.addItemListener(new java.awt.event.ItemListener() {
@@ -127,6 +163,80 @@ public class BuscarPersonaje extends javax.swing.JFrame {
     private void cbTipoPersonajeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbTipoPersonajeActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_cbTipoPersonajeActionPerformed
+
+    private void btnCancelarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCancelarActionPerformed
+
+        this.dispose();
+    }//GEN-LAST:event_btnCancelarActionPerformed
+
+    private void mostrarResultados(List<Personaje> lista) {
+        
+        // 1. Añadir encabezado
+        listaModelo.addElement(String.format("========================================================================================="));
+        listaModelo.addElement(String.format("%-5s | %-15s | %-10s | %-8s | %-8s | %-8s | %-8s", 
+                "ID", "NOMBRE", "CLASE", "SALUD", "MANA", "ATAQUE", "DEFENSA"));
+        listaModelo.addElement(String.format("========================================================================================="));
+
+        // 2. Añadir cada personaje
+        for (Personaje p : lista) {
+            String linea = String.format("%-5d | %-15s | %-10s | %-8d | %-8d | %-8d | %-8d",
+                    p.getId(), p.getNombre(), p.getTipo(), p.getSalud(), p.getMana(), p.getAtaque(), p.getDefensa());
+            listaModelo.addElement(linea);
+        }
+    }
+    
+    private void cargarTodosLosPersonajesInicialmente() {
+        try {
+            // Llamamos al controlador con parámetros vacíos. 
+            // Como el campo ID y Nombre están vacíos, y el Tipo está en "TODOS", 
+            // el DAO devolverá todos los registros.
+            List<Personaje> resultados = controlador.buscarPersonajes("", "TODOS", "");
+
+            if (resultados.isEmpty()) {
+                listaModelo.addElement("Base de datos cargada. No hay personajes registrados.");
+            } else {
+                mostrarResultados(resultados);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Error al cargar la lista inicial: " + e.getMessage(), "Error de Conexión/BD", JOptionPane.ERROR_MESSAGE);
+            listaModelo.addElement("ERROR: Fallo al conectar o cargar datos.");
+        }
+    }
+    
+    private void btnBuscarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBuscarActionPerformed
+        // TODO add your handling code here:
+        // A. Obtener los filtros
+        String id = txtBuscarId.getText().trim();
+        String tipo = cbTipoPersonaje.getSelectedItem().toString(); // Ya añadimos "TODOS"
+        String nombre = txtBuscarNombre.getText().trim();
+        
+        // Limpiar resultados anteriores
+        listaModelo.clear(); 
+        
+        try {
+            // B. Llamar al controlador para ejecutar la búsqueda
+            List<Personaje> resultados = controlador.buscarPersonajes(id, tipo, nombre);
+
+            // C. Mostrar los resultados
+            if (resultados.isEmpty()) {
+                listaModelo.addElement("⚠️ Búsqueda completada. No se encontraron personajes.");
+            } else {
+                mostrarResultados(resultados);
+            }
+
+        } catch (NumberFormatException e) {
+            // Error si el ID introducido no es un número
+            JOptionPane.showMessageDialog(this, "El ID debe ser un número entero válido.", "Error de Entrada", JOptionPane.ERROR_MESSAGE);
+            listaModelo.addElement("Error: ID inválido.");
+        } catch (Exception e) {
+            // Error general (por ejemplo, de conexión a la BD)
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Error al ejecutar la búsqueda: " + e.getMessage(), "Error de Búsqueda", JOptionPane.ERROR_MESSAGE);
+            listaModelo.addElement("Error: Fallo en la conexión o la consulta.");
+        }
+    
+    }//GEN-LAST:event_btnBuscarActionPerformed
 
     /**
      * @param args the command line arguments

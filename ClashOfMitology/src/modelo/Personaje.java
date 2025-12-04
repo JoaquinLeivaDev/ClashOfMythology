@@ -21,6 +21,11 @@ public abstract class Personaje {
         this.agilidad = agilidad;
     }
 
+    public Personaje() {
+    }
+    
+    
+
     public int getId() { return id; }
     public String getNombre() { return nombre; }
     public String getTipo() { return tipo; }

@@ -12,4 +12,16 @@ public class Sacerdote extends Personaje {
             15                 // agilidad
         ); 
     }
+    
+    public Sacerdote() {
+        super(
+            null, // Nombre inicializado a null
+            "Sacerdote",
+            0,
+            0,
+            0,
+            0,
+            0
+        );
+    }
 }

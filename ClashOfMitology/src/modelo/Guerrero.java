@@ -13,4 +13,16 @@ public class Guerrero extends Personaje {
             25                 // agilidad
         ); 
     }
+    
+    public Guerrero() {
+        super(
+            null, // Nombre inicializado a null
+            "Guerrero",
+            0,
+            0,
+            0,
+            0,
+            0
+        );
+    }
 }

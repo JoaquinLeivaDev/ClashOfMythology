@@ -83,6 +83,11 @@ public class Inicio extends javax.swing.JFrame {
         mOpciones.add(miEditarPersonaje);
 
         miBuscarPersonaje.setText("Buscar Personaje");
+        miBuscarPersonaje.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                miBuscarPersonajeActionPerformed(evt);
+            }
+        });
         mOpciones.add(miBuscarPersonaje);
 
         miEliminarPersonaje.setText("Eliminar Personaje");
@@ -152,6 +157,13 @@ public class Inicio extends javax.swing.JFrame {
             escritorio.add(editarPersonaje);
             editarPersonaje.setVisible(true);   
     }//GEN-LAST:event_miEditarPersonajeActionPerformed
+
+    private void miBuscarPersonajeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_miBuscarPersonajeActionPerformed
+
+            BuscarPersonaje buscarPersonaje = new BuscarPersonaje();
+            escritorio.add(buscarPersonaje);
+            buscarPersonaje.setVisible(true);  
+    }//GEN-LAST:event_miBuscarPersonajeActionPerformed
 
     /**
      * @param args the command line arguments

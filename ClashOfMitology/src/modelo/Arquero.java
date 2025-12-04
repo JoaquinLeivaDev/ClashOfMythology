@@ -13,4 +13,16 @@ public class Arquero extends Personaje {
             60   // agilidad
         ); 
     }
+    
+    public Arquero() {
+        super(
+            null, // Nombre inicializado a null
+            "Arquero",
+            0,
+            0,
+            0,
+            0,
+            0
+        );
+    }
 }

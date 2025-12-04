@@ -1,5 +1,6 @@
 package controlador;
 
+import java.util.List;
 import modelo.Personaje;
 import modelo.Mago;
 import modelo.Arquero;
@@ -14,6 +15,10 @@ public class PersonajeControlador {
 
     public PersonajeControlador() {
         this.dao = new PersonajeDAO();
+    }
+    
+    public List<Personaje> buscarPersonajes(String id, String tipo, String nombre) {
+        return dao.buscarPersonaje(id, tipo, nombre);
     }
     
     public boolean guardarPersonaje(String nombre, String tipo) {
